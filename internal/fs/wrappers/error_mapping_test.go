@@ -22,6 +22,7 @@ import (
 
 	"github.com/googleapis/gax-go/v2/apierror"
 	"github.com/googlecloudplatform/gcsfuse/v3/internal/fs/gcsfuse_errors"
+	"github.com/googlecloudplatform/gcsfuse/v3/internal/storage/gcs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/api/googleapi"
@@ -100,4 +101,24 @@ func (testSuite *ErrorMapping) TestFileClobberedError() {
 	gotErrno := errno(clobberedErr)
 
 	assert.Equal(testSuite.T(), syscall.ESTALE, gotErrno)
+}
+
+func (testSuite *ErrorMapping) TestNotFoundError() {
+	notFoundErr := &gcs.NotFoundError{
+		Err: fmt.Errorf("object not found"),
+	}
+
+	gotErrno := errno(notFoundErr)
+
+	assert.Equal(testSuite.T(), syscall.ENOENT, gotErrno)
+}
+
+func (testSuite *ErrorMapping) TestWrappedNotFoundError() {
+	wrappedErr := fmt.Errorf("wrapped error: %w", &gcs.NotFoundError{
+		Err: fmt.Errorf("object not found"),
+	})
+
+	gotErrno := errno(wrappedErr)
+
+	assert.Equal(testSuite.T(), syscall.ENOENT, gotErrno)
 }

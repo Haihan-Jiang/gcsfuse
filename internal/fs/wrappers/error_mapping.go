@@ -24,6 +24,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/googlecloudplatform/gcsfuse/v3/internal/fs/gcsfuse_errors"
 	"github.com/googlecloudplatform/gcsfuse/v3/internal/logger"
+	"github.com/googlecloudplatform/gcsfuse/v3/internal/storage/gcs"
 	"github.com/jacobsa/fuse/fuseops"
 	"github.com/jacobsa/fuse/fuseutil"
 	"google.golang.org/api/googleapi"
@@ -55,6 +56,11 @@ func errno(err error) error {
 	// The fuse op is interrupted
 	if errors.Is(err, context.Canceled) {
 		return syscall.EINTR
+	}
+
+	var notFoundErr *gcs.NotFoundError
+	if errors.As(err, &notFoundErr) {
+		return syscall.ENOENT
 	}
 
 	if errors.Is(err, storage.ErrObjectNotExist) {

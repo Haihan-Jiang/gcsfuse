@@ -35,6 +35,10 @@ func (nfe *NotFoundError) Error() string {
 	return fmt.Sprintf("gcs.NotFoundError: %v", nfe.Err)
 }
 
+func (nfe *NotFoundError) Unwrap() error {
+	return nfe.Err
+}
+
 // A *PreconditionError value is an error that indicates a precondition failed.
 type PreconditionError struct {
 	Err error
@@ -43,6 +47,10 @@ type PreconditionError struct {
 // Returns pe.Err.Error().
 func (pe *PreconditionError) Error() string {
 	return fmt.Sprintf("gcs.PreconditionError: %v", pe.Err)
+}
+
+func (pe *PreconditionError) Unwrap() error {
+	return pe.Err
 }
 
 // GetGCSError converts an error returned by go-sdk into gcsfuse specific common gcs error.

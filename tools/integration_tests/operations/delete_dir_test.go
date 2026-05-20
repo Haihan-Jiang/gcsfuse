@@ -60,3 +60,25 @@ func TestDeleteNonEmptyExplicitDir(t *testing.T) {
 		t.Errorf("Directory is not deleted.")
 	}
 }
+
+func TestDeleteAlreadyDeletedExplicitDir(t *testing.T) {
+	testDir := setup.SetupTestDirectory(DirForOperationTests)
+
+	dirPath := path.Join(testDir, "already_deleted_dir")
+	operations.CreateDirectoryWithNFiles(0, dirPath, "", t)
+
+	// Delete it first.
+	err := os.Remove(dirPath)
+	if err != nil {
+		t.Fatalf("Error in deleting empty explicit directory: %v", err)
+	}
+
+	// Delete it again, which should return os.ErrNotExist (ENOENT)
+	err = os.Remove(dirPath)
+	if err == nil {
+		t.Errorf("Expected error when deleting non-existent directory, got nil")
+	}
+	if !os.IsNotExist(err) {
+		t.Errorf("Expected os.ErrNotExist (ENOENT) error when deleting non-existent directory, got: %v", err)
+	}
+}

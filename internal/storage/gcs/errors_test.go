@@ -148,3 +148,33 @@ func TestGetGCSError(t *testing.T) {
 		})
 	}
 }
+
+func TestNotFoundError_Unwrap(t *testing.T) {
+	innerErr := errors.New("inner error")
+	nfe := &NotFoundError{Err: innerErr}
+
+	assert.Equal(t, innerErr, nfe.Unwrap())
+	assert.True(t, errors.Is(nfe, innerErr))
+
+	wrappedErr := fmt.Errorf("wrapped: %w", nfe)
+	assert.True(t, errors.Is(wrappedErr, innerErr))
+
+	var target *NotFoundError
+	assert.True(t, errors.As(wrappedErr, &target))
+	assert.Equal(t, nfe, target)
+}
+
+func TestPreconditionError_Unwrap(t *testing.T) {
+	innerErr := errors.New("inner error")
+	pe := &PreconditionError{Err: innerErr}
+
+	assert.Equal(t, innerErr, pe.Unwrap())
+	assert.True(t, errors.Is(pe, innerErr))
+
+	wrappedErr := fmt.Errorf("wrapped: %w", pe)
+	assert.True(t, errors.Is(wrappedErr, innerErr))
+
+	var target *PreconditionError
+	assert.True(t, errors.As(wrappedErr, &target))
+	assert.Equal(t, pe, target)
+}
